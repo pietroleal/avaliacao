@@ -2,9 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Avaliação 2 – Prof. Leal</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação 2 – Prof. Leal</title>
 
 <style>
 body {
@@ -20,20 +19,27 @@ header {
 }
 
 header h2 {
-  margin: 5px 0;
+  margin: 4px 0;
   font-size: 1.2rem;
 }
 
 #timer {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: darkred;
   font-weight: bold;
 }
 
+iframe {
+  width: 100%;
+  height: calc(100vh - 120px);
+  border: none;
+}
+
+/* ALERTA */
 .alert-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.7);
   display: none;
   align-items: center;
   justify-content: center;
@@ -45,34 +51,27 @@ header h2 {
   padding: 22px;
   border-radius: 8px;
   text-align: center;
-  max-width: 90%;
+  max-width: 360px;
 }
 
 .alert-box h3 {
   color: #d32f2f;
+  margin-bottom: 10px;
 }
 
 .alert-box button {
   background: #d32f2f;
   color: #fff;
   border: none;
-  padding: 10px 18px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-iframe {
-  width: 100%;
-  height: calc(100vh - 120px);
-  border: none;
-}
-
+/* RESPONSIVO */
 @media (max-width: 768px) {
-  header h2 {
-    font-size: 1rem;
-  }
-  #timer {
-    font-size: 1rem;
+  iframe {
+    height: calc(100vh - 140px);
   }
 }
 </style>
@@ -82,37 +81,32 @@ iframe {
 
 <header>
   <h2>Avaliação 2 – Individual – Prof. Leal</h2>
-  <strong>⚠️ AVALIAÇÃO MONITORADA</strong><br>
-  <small>Trocas de aba e tentativas de cópia são registradas.</small>
+  ⚠️ Avaliação monitorada  
   <div>Tempo restante: <span id="timer">01:20:00</span></div>
 </header>
 
-<iframe 
+<iframe
   src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true">
 </iframe>
 
 <div class="alert-overlay" id="alert">
   <div class="alert-box">
-    <h3>⚠️ ATENÇÃO</h3>
+    <h3>⚠️ Atenção</h3>
     <p>
-      Você saiu da aba da avaliação.<br><br>
-      Esse comportamento está sendo <strong>registrado</strong>
-      e será considerado na correção.
+      Comportamento fora da prova detectado.<br>
+      Esse evento foi REGISTRADO e será analisado na correção.
     </p>
     <button onclick="fecharAlerta()">Entendi</button>
   </div>
 </div>
 
 <script>
-/* ==== CONFIG ==== */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0-PLAc30n46PMp7Y0dwaSWJVVrwhS_1GEh_nEu_cCj9U2dSl2BCoYgdli9qlOEtnfzA/exec";
-
-/* ==== MONITORAMENTO ==== */
+/* ===== CONTADORES ===== */
 let tempo = 80 * 60;
 let trocasAba = 0;
 let tentativasAtalho = 0;
 
-/* ==== TIMER ==== */
+/* ===== TIMER ===== */
 function atualizarTimer() {
   let h = String(Math.floor(tempo / 3600)).padStart(2,'0');
   let m = String(Math.floor((tempo % 3600) / 60)).padStart(2,'0');
@@ -121,66 +115,60 @@ function atualizarTimer() {
   document.getElementById("timer").textContent = `${h}:${m}:${s}`;
 
   if (tempo <= 0) {
-    finalizarAvaliacao();
+    registrarLog();
     document.body.innerHTML = "<h2 style='text-align:center'>Tempo esgotado.</h2>";
   }
   tempo--;
 }
-
 setInterval(atualizarTimer, 1000);
 atualizarTimer();
 
-/* ==== BLOQUEIOS ==== */
-document.addEventListener('copy', e => e.preventDefault());
-document.addEventListener('paste', e => e.preventDefault());
-document.addEventListener('cut', e => e.preventDefault());
-
-document.addEventListener('keydown', e => {
-  if (
-    e.key === 'PrintScreen' ||
-    (e.ctrlKey && ['p','s','u','c','v','x'].includes(e.key.toLowerCase()))
-  ) {
-    e.preventDefault();
-    tentativasAtalho++;
-    mostrarAlerta();
-  }
-});
-
-/* ==== TROCA DE ABA ==== */
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
+/* ===== MONITORAMENTO ===== */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
     trocasAba++;
     mostrarAlerta();
   }
 });
 
-/* ==== ALERTA ==== */
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "PrintScreen" ||
+    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase()))
+  ) {
+    tentativasAtalho++;
+    e.preventDefault();
+    mostrarAlerta();
+  }
+});
+
+/* ===== ALERTA ===== */
 function mostrarAlerta() {
   document.getElementById("alert").style.display = "flex";
 }
-
 function fecharAlerta() {
   document.getElementById("alert").style.display = "none";
 }
 
-/* ==== ENVIO PARA GOOGLE SHEETS ==== */
-function finalizarAvaliacao() {
+/* ===== REGISTRO NO GOOGLE SHEETS ===== */
+function registrarLog() {
   const dados = {
     nome: "Não informado",
     turma: "Não informada",
     trocaAba: trocasAba,
     atalhos: tentativasAtalho,
-    tempoRestante: tempo
+    tempo: tempo
   };
 
-  fetch(SCRIPT_URL, {
+  fetch("https://script.google.com/macros/s/AKfycbxN6PewyLqxlGXAoyeat86Nl-JCs8TaLyP65HIL0H6OUVbXOY41oaAFsmHg39Bq3ia0sw/exec", {
     method: "POST",
-    body: JSON.stringify(dados)
-  }).catch(() => {});
+    body: JSON.stringify(dados),
+    headers: { "Content-Type": "application/json" }
+  });
 }
 
-/* ==== BACKUP: FECHANDO A PÁGINA ==== */
-window.addEventListener("beforeunload", finalizarAvaliacao);
+/* ===== DISPARO AUTOMÁTICO ===== */
+window.addEventListener("beforeunload", registrarLog);
 </script>
 
 </body>
