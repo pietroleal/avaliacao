@@ -1,174 +1,175 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Avaliação Monitorada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação 2 – Prof. Leal</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+}
 
-    .container {
-      max-width: 700px;
-      background: #fff;
-      padding: 20px;
-      margin: auto;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+header {
+  background: #ddd;
+  padding: 12px;
+  text-align: center;
+}
 
-    h2 {
-      color: #c0392b;
-      text-align: center;
-    }
+header h2 {
+  margin: 4px 0;
+  font-size: 1.2rem;
+}
 
-    .alerta {
-      background: #ffe6e6;
-      border-left: 6px solid #c0392b;
-      padding: 15px;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
+#timer {
+  font-size: 1.2rem;
+  color: darkred;
+  font-weight: bold;
+}
 
-    label {
-      display: block;
-      margin-top: 10px;
-    }
+iframe {
+  width: 100%;
+  height: calc(100vh - 120px);
+  border: none;
+}
 
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-    }
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
-    .timer {
-      text-align: center;
-      font-size: 22px;
-      margin: 20px 0;
-      color: #2c3e50;
-      font-weight: bold;
-    }
+.alert-box {
+  background: #fff;
+  padding: 22px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 360px;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      margin-top: 20px;
-      background: #27ae60;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+.alert-box h3 {
+  color: #d32f2f;
+}
 
-    button:hover {
-      background: #219150;
-    }
-  </style>
+.alert-box button {
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  iframe {
+    height: calc(100vh - 140px);
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>AVALIAÇÃO MONITORADA</h2>
 
-    <div class="alerta">
-      ⚠️ ATENÇÃO:  
-      Esta avaliação é monitorada.  
-      Trocas de aba, uso de atalhos, pesquisas na internet e tentativas de copiar/colar  
-      **SERÃO REGISTRADAS E ANALISADAS NA CORREÇÃO.**
-    </div>
+<header>
+  <h2>Avaliação 2 – Individual – Prof. Leal</h2>
+  ⚠️ Avaliação monitorada  
+  <div>Tempo restante: <span id="timer">01:20:00</span></div>
+</header>
 
-    <label>Nome:</label>
-    <input type="text" id="nome" placeholder="Digite seu nome" required>
+<iframe
+  src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true">
+</iframe>
 
-    <label>Turma:</label>
-    <input type="text" id="turma" placeholder="Digite sua turma" required>
-
-    <div class="timer" id="timer">01:20:00</div>
-
-    <!-- ⬇️ AQUI VOCÊ PODE COLOCAR O IFRAME DO GOOGLE FORMS, SE QUISER -->
-    <!-- <iframe src="LINK_DO_FORMS" width="100%" height="600" frameborder="0"></iframe> -->
-
-    <button onclick="finalizar()">Enviar Avaliação</button>
+<div class="alert-overlay" id="alert">
+  <div class="alert-box">
+    <h3>⚠️ Atenção</h3>
+    <p>
+      Comportamento fora da prova detectado.<br>
+      Este evento foi REGISTRADO e será analisado.
+    </p>
+    <button onclick="fecharAlerta()">Entendi</button>
   </div>
+</div>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycby7dFBIEIk_1akRqE9-egbJdId2SNwfamFZerXXqGmJJbILVri3RjFwuDxjzfAbeTIoow/exec";
+<script>
+/* ===== VARIÁVEIS ===== */
+let tempo = 80 * 60;
+let TrocasAba = 0;
+let Atalhos = 0;
 
-    let tempoTotal = 80 * 60; // 1h20min em segundos
-    let trocasAba = 0;
-    let tentativasAtalho = 0;
+/* ===== TIMER ===== */
+function atualizarTimer() {
+  let h = String(Math.floor(tempo / 3600)).padStart(2,'0');
+  let m = String(Math.floor((tempo % 3600) / 60)).padStart(2,'0');
+  let s = String(tempo % 60).padStart(2,'0');
 
-    function formatarTempo(seg) {
-      const h = String(Math.floor(seg / 3600)).padStart(2, "0");
-      const m = String(Math.floor((seg % 3600) / 60)).padStart(2, "0");
-      const s = String(seg % 60).padStart(2, "0");
-      return `${h}:${m}:${s}`;
+  document.getElementById("timer").textContent = `${h}:${m}:${s}`;
+
+  if (tempo <= 0) {
+    registrarLog();
+    document.body.innerHTML = "<h2 style='text-align:center'>Tempo esgotado.</h2>";
+  }
+  tempo--;
+}
+setInterval(atualizarTimer, 1000);
+atualizarTimer();
+
+/* ===== MONITORAMENTO ===== */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    TrocasAba++;
+    mostrarAlerta();
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "PrintScreen" ||
+    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase()))
+  ) {
+    Atalhos++;
+    e.preventDefault();
+    mostrarAlerta();
+  }
+});
+
+/* ===== ALERTA ===== */
+function mostrarAlerta() {
+  document.getElementById("alert").style.display = "flex";
+}
+function fecharAlerta() {
+  document.getElementById("alert").style.display = "none";
+}
+
+/* ===== ENVIO PARA GOOGLE SHEETS ===== */
+function registrarLog() {
+  const dados = {
+    Nome: "Não informado",
+    Turma: "Não informada",
+    TrocasAba: TrocasAba,
+    Atalhos: Atalhos,
+    TempoRestante: tempo
+  };
+
+  fetch(
+    "https://script.google.com/macros/s/AKfycby7dFBIEIk_1akRqE9-egbJdId2SNwfamFZerXXqGmJJbILVri3RjFwuDxjzfAbeTIoow/exec",
+    {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
     }
+  );
+}
 
-    const timerEl = document.getElementById("timer");
+window.addEventListener("beforeunload", registrarLog);
+</script>
 
-    const contador = setInterval(() => {
-      tempoTotal--;
-      timerEl.textContent = formatarTempo(tempoTotal);
-
-      if (tempoTotal <= 0) {
-        clearInterval(contador);
-        finalizar();
-      }
-    }, 1000);
-
-    // 👉 Conta troca de aba / janela
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        trocasAba++;
-      }
-    });
-
-    // 👉 Bloqueia e registra atalhos
-    document.addEventListener("keydown", (e) => {
-      if (
-        (e.ctrlKey || e.metaKey) &&
-        ["c", "v", "x", "u", "p"].includes(e.key.toLowerCase())
-      ) {
-        e.preventDefault();
-        tentativasAtalho++;
-      }
-    });
-
-    // 👉 Bloqueia menu do mouse
-    document.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      tentativasAtalho++;
-    });
-
-    function finalizar() {
-      clearInterval(contador);
-
-      const dados = {
-        Nome: document.getElementById("nome").value || "Não informado",
-        Turma: document.getElementById("turma").value || "Não informada",
-        TrocasAba: trocasAba,
-        Atalhos: tentativasAtalho,
-        TempoRestante: formatarTempo(tempoTotal)
-      };
-
-      fetch(scriptURL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(dados)
-      });
-
-      alert("✅ Avaliação enviada!\nOs registros de monitoramento foram salvos.");
-    }
-  </script>
 </body>
 </html>
