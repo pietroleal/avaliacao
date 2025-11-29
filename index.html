@@ -2,133 +2,149 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avaliação - Prof. Leal</title>
-    <!-- Carregamento do Tailwind CSS para um design limpo e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7f9fb;
         }
-        /* Estilo para a mensagem de alerta, que substitui o alert() padrão */
         .custom-alert {
             transition: all 0.3s ease;
         }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
 
-    <div id="main-interface" class="w-full max-w-xl bg-white p-6 md:p-10 rounded-xl shadow-2xl border border-gray-100 transform transition duration-500 hover:shadow-3xl">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4 border-b pb-2">Ambiente de Avaliação Segura</h1>
-        <p class="text-gray-600 mb-6">Mestre Leal, clique no botão abaixo para abrir a janela de avaliação. As seguintes restrições serão aplicadas na nova janela:</p>
+<body class="p-6 min-h-screen flex items-center justify-center">
 
-        <ul class="space-y-3 text-sm text-gray-700 bg-red-50 p-4 rounded-lg border border-red-200 mb-6">
-            <li class="flex items-start">
-                <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m-1.414-4.95l-.707 3.536m2.828-2.828l3.536 3.536m-1.414 4.95l-.707 3.536M12 21h6a2 2 0 002-2v-6m-2-4v-4m-7 4l-3.536-3.536M3 12a9 9 0 119 9h6m0-6v-6m-6 4a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                Bloqueio de atalhos de cópia/cola (`Ctrl+C`, `Ctrl+V`, `Ctrl+X`).
-            </li>
-            <li class="flex items-start">
-                <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                Bloqueio do clique direito (menu de contexto).
-            </li>
-            <li class="flex items-start">
-                <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101M16.172 13.828l-4.01-4.01m.002-2.828l4.01 4.01a4 4 0 105.656-5.656l-4-4a4 4 0 00-5.656 0z"></path></svg>
-                **Aviso se a janela for minimizada ou se o aluno mudar de aba.**
-            </li>
-        </ul>
-        
-        <!-- URL do Google Forms: COLOQUE AQUI O LINK DA SUA AVALIAÇÃO -->
-        <input type="url" id="formUrl" value="https://docs.google.com/forms/d/e/1FAIpQLSfpKqL_YfJ4zGz3QJ0V8Y_Qx4f9X6l5O8XvT9C-R5v5Gz7g/viewform?usp=sf_link"
-               class="w-full p-3 mb-6 border-2 border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
-               placeholder="Insira a URL do seu Google Forms aqui" readonly>
+<div class="w-full max-w-xl bg-white p-8 rounded-xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-4">Ambiente de Avaliação Segura</h1>
 
-        <button onclick="openSecureExamWindow()"
-                class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
-            Iniciar Avaliação Restrita
+    <!-- CONTADOR -->
+    <div class="mb-4 p-3 bg-gray-100 rounded text-center">
+        <span class="font-semibold">Tempo restante:</span>
+        <span id="timer" class="font-bold text-red-600 text-lg">01:20:00</span>
+    </div>
+
+    <input type="url" id="formUrl"
+           value="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?usp=header"
+           class="w-full p-3 mb-6 border rounded"
+           readonly>
+
+    <button onclick="openSecureExamWindow()"
+            class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">
+        Iniciar Avaliação
+    </button>
+</div>
+
+<!-- ALERTA -->
+<div id="custom-alert-container"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div id="custom-alert-box"
+         class="custom-alert bg-white p-6 rounded scale-90 opacity-0 max-w-md">
+        <h2 class="font-bold text-red-600 mb-2">⚠ Alerta</h2>
+        <p id="alert-message" class="mb-4">Você saiu da avaliação.</p>
+        <button onclick="closeCustomAlert()"
+                class="bg-red-600 text-white px-4 py-2 rounded w-full">
+            Voltar
         </button>
-
-        <p class="mt-8 text-xs text-gray-500 text-center">
-            *Esta interface é um wrapper de segurança e não altera o Google Forms original.
-        </p>
     </div>
+</div>
 
-    <!-- Container do Alerta Customizado -->
-    <div id="custom-alert-container" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div id="custom-alert-box" class="custom-alert bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-11/12 border-t-4 border-red-500 scale-90 opacity-0">
-            <h2 class="text-xl font-bold text-red-600 mb-3 flex items-center">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.398 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                ALERTA DE SEGURANÇA!
-            </h2>
-            <p id="alert-message" class="text-gray-700 mb-4">Você saiu da janela de avaliação.</p>
-            <button onclick="closeCustomAlert()" class="w-full bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 transition duration-150">
-                Entendi e Voltar
-            </button>
-        </div>
-    </div>
+<script>
+    let examWindow = null;
+    let tempoTotal = 80 * 60; // 1h e 20 min
+    let intervaloTimer = null;
 
-    <script>
-        // Variáveis globais para rastrear a janela do exame
-        let examWindow = null;
-        const formUrlInput = document.getElementById('formUrl');
+    function showCustomAlert(msg) {
+        const c = document.getElementById('custom-alert-container');
+        const b = document.getElementById('custom-alert-box');
+        document.getElementById('alert-message').textContent = msg;
 
-        /**
-         * Exibe o alerta customizado na tela.
-         * @param {string} message - A mensagem a ser exibida.
-         */
-        function showCustomAlert(message) {
-            const container = document.getElementById('custom-alert-container');
-            const box = document.getElementById('custom-alert-box');
-            document.getElementById('alert-message').textContent = message;
+        c.classList.remove('hidden');
+        c.classList.add('flex');
+        void b.offsetWidth;
+        b.classList.remove('scale-90', 'opacity-0');
+    }
 
-            container.classList.remove('hidden');
-            container.classList.add('flex');
-            // Força o reflow para aplicar a transição
-            void box.offsetWidth; 
-            box.classList.remove('scale-90', 'opacity-0');
-            box.classList.add('scale-100', 'opacity-100');
-        }
+    function closeCustomAlert() {
+        const c = document.getElementById('custom-alert-container');
+        const b = document.getElementById('custom-alert-box');
 
-        /**
-         * Fecha o alerta customizado e tenta focar na janela do exame.
-         */
-        function closeCustomAlert() {
-            const container = document.getElementById('custom-alert-container');
-            const box = document.getElementById('custom-alert-box');
-            
-            box.classList.remove('scale-100', 'opacity-100');
-            box.classList.add('scale-90', 'opacity-0');
-            
-            setTimeout(() => {
-                container.classList.remove('flex');
-                container.classList.add('hidden');
-                
-                // Tenta focar na janela do exame para trazer o aluno de volta
-                if (examWindow && !examWindow.closed) {
-                    examWindow.focus();
-                }
-            }, 300); // Deve corresponder à duração da transição
-        }
+        b.classList.add('scale-90', 'opacity-0');
 
-        /**
-         * Abre a janela de avaliação em um ambiente restrito.
-         */
-        function openSecureExamWindow() {
-            const url = formUrlInput.value.trim();
-            if (!url) {
-                showCustomAlert("Por favor, insira a URL do seu Google Forms no campo acima.");
+        setTimeout(() => {
+            c.classList.add('hidden');
+            c.classList.remove('flex');
+            if (examWindow && !examWindow.closed) examWindow.focus();
+        }, 300);
+    }
+
+    function iniciarContador() {
+        if (intervaloTimer) clearInterval(intervaloTimer);
+
+        intervaloTimer = setInterval(() => {
+            const h = Math.floor(tempoTotal / 3600);
+            const m = Math.floor((tempoTotal % 3600) / 60);
+            const s = tempoTotal % 60;
+
+            document.getElementById('timer').textContent =
+                String(h).padStart(2, '0') + ':' +
+                String(m).padStart(2, '0') + ':' +
+                String(s).padStart(2, '0');
+
+            if (tempoTotal <= 0) {
+                clearInterval(intervaloTimer);
+                showCustomAlert('⏰ Tempo encerrado! A avaliação foi finalizada.');
+                if (examWindow && !examWindow.closed) examWindow.close();
                 return;
             }
 
-            const features = 'width=1000,height=800,scrollbars=yes,resizable=yes,toolbar=no,location=no,menubar=no';
-            
-            // Abre uma nova janela/aba com as configurações restritas
-            examWindow = window.open('', 'SecureExamWindow', features);
+            tempoTotal--;
+        }, 1000);
+    }
 
-            if (!examWindow) {
-                showCustomAlert("O bloqueador de pop-ups impediu a abertura da avaliação. Por favor, desabilite-o para este site e tente novamente.");
-                return;
+    function openSecureExamWindow() {
+        const url = document.getElementById('formUrl').value;
+
+        examWindow = window.open(
+            url,
+            'SecureExam',
+            'width=1000,height=800,toolbar=no,menubar=no,location=no,resizable=yes'
+        );
+
+        if (!examWindow) {
+            showCustomAlert('Desative o bloqueador de pop-ups.');
+            return;
+        }
+
+        iniciarContador();
+
+        window.addEventListener('blur', () =>
+            showCustomAlert('Você saiu da janela da avaliação.')
+        );
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                showCustomAlert('Troca de aba detectada.')
             }
+        });
 
-            // O conteúdo
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && ['c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+                showCustomAlert('Copiar e colar não é permitido.')
+            }
+        });
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showCustomAlert('Clique direito bloqueado.');
+        });
+    }
+</script>
+
+</body>
+</html>
