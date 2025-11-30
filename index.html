@@ -1,108 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Avaliação 2 – Prof. Leal</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avaliação Monitorada – Prof. Leal</title>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+* { box-sizing: border-box; }
 
-body{
+body {
+  margin: 0;
   font-family: Arial, sans-serif;
-  margin:0;
-  background:#f5f5f5;
-  height:100vh;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
+  background: #f5f5f5;
 }
 
-/* ===== HEADER ===== */
-header{
-  background:#e0e0e0;
-  padding:12px 10px;
-  text-align:center;
+header {
+  background: #e0e0e0;
+  padding: 12px;
+  text-align: center;
 }
 
-header h2{
-  margin:4px 0;
-  font-size:1.1rem;
+header h2 {
+  margin: 6px 0;
+  font-size: 1.2rem;
 }
 
-header span{
-  font-size:0.9rem;
+#timer {
+  font-weight: bold;
+  color: darkred;
+  font-size: 1.1rem;
 }
 
-#timer{
-  font-size:1.1rem;
-  color:darkred;
-  font-weight:bold;
-  display:block;
-  margin-top:6px;
+iframe {
+  width: 100%;
+  height: calc(100vh - 150px);
+  border: none;
 }
 
-/* ===== CONTAINER ===== */
-.main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  min-height:0;
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-/* ===== IFRAME ===== */
-iframe{
-  flex:1;
-  width:100%;
-  border:none;
+.alert-box {
+  background: #fff;
+  padding: 22px;
+  border-radius: 8px;
+  max-width: 90%;
+  text-align: center;
 }
 
-/* ===== ALERTA ===== */
-.alert-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  padding:16px;
+.alert-box h3 {
+  color: #d32f2f;
+  margin-bottom: 10px;
 }
 
-.alert-box{
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  text-align:center;
-  width:100%;
-  max-width:350px;
+.alert-box button {
+  background: #d32f2f;
+  color: #fff;
+  border: 0;
+  padding: 10px 18px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.alert-box h3{
-  color:#d32f2f;
-  margin-top:0;
-}
-
-.alert-box button{
-  margin-top:12px;
-  background:#d32f2f;
-  color:#fff;
-  border:none;
-  padding:10px 18px;
-  border-radius:5px;
-  cursor:pointer;
-  width:100%;
-}
-
-/* ===== MOBILE ===== */
-@media (max-width:768px){
-  header h2{font-size:1rem}
-  #timer{font-size:1rem}
-}
-
-/* ===== PHONE PEQUENO ===== */
-@media (max-width:480px hookups){
-  header span{display:block}
+@media (max-width: 768px) {
+  header h2 { font-size: 1rem; }
+  iframe { height: calc(100vh - 180px); }
 }
 </style>
 </head>
@@ -112,103 +84,105 @@ iframe{
 <header>
   <h2>Avaliação 2 – Individual – Prof. Leal</h2>
   ⚠️ Avaliação monitorada
-  <span>Tempo restante:</span>
-  <span id="timer">01:20:00</span>
+  <div>Tempo restante: <span id="timer">01:20:00</span></div>
 </header>
 
-<div class="main">
-  <iframe 
-    src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true"
-    allowfullscreen>
-  </iframe>
-</div>
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true"></iframe>
 
 <div class="alert-overlay" id="alert">
   <div class="alert-box">
     <h3>⚠️ Atenção</h3>
     <p>
-      Comportamento fora da prova detectado.<br>
-      Este evento foi <strong>REGISTRADO</strong>.
+      Comportamento fora da avaliação detectado.<br>
+      Este evento foi registrado.
     </p>
     <button onclick="fecharAlerta()">Entendi</button>
   </div>
 </div>
 
 <script>
-/* ========= CONFIG ========= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7dFBIEIk_1akRqE9-egbJdId2SNwfamFZerXXqGmJJbILVri3RjFwuDxjzfAbeTIoow/exec";
+/* ========= EMAILJS CONFIG ========= */
+emailjs.init("4HiIxy4oy-dWqxWEo");
+
+const SERVICE_ID = "service_6irvdev";
+const TEMPLATE_ID = "yqb8ejw";
 
 /* ========= VARIÁVEIS ========= */
 let tempo = 80 * 60;
-let TrocasAba = 0;
-let Atalhos = 0;
+let trocas = 0;
+let atalhos = 0;
 let enviado = false;
 
 /* ========= TIMER ========= */
-function atualizarTimer(){
-  let h = String(Math.floor(tempo/3600)).padStart(2,'0');
-  let m = String(Math.floor((tempo%3600)/60)).padStart(2,'0');
-  let s = String(tempo%60).padStart(2,'0');
+function atualizarTimer() {
+  let h = String(Math.floor(tempo / 3600)).padStart(2,'0');
+  let m = String(Math.floor((tempo % 3600) / 60)).padStart(2,'0');
+  let s = String(tempo % 60).padStart(2,'0');
+
   document.getElementById("timer").textContent = `${h}:${m}:${s}`;
 
-  if(tempo <= 0){
-    registrarLog();
-    document.body.innerHTML = "<h2 style='text-align:center;margin-top:40vh'>Tempo esgotado</h2>";
+  if (tempo <= 0) {
+    enviarLog();
+    document.body.innerHTML = "<h2 style='text-align:center'>Tempo esgotado.</h2>";
   }
   tempo--;
 }
-setInterval(atualizarTimer,1000);
+setInterval(atualizarTimer, 1000);
 atualizarTimer();
 
 /* ========= MONITORAMENTO ========= */
-document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden){
-    TrocasAba++;
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    trocas++;
     mostrarAlerta();
   }
 });
 
-document.addEventListener("keydown", e=>{
-  if(
+document.addEventListener("keydown", e => {
+  if (
     e.key === "PrintScreen" ||
-    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase()))
-  ){
-    Atalhos++;
+    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase())) ||
+    e.altKey
+  ) {
+    atalhos++;
     e.preventDefault();
     mostrarAlerta();
   }
 });
 
 /* ========= ALERTA ========= */
-function mostrarAlerta(){
-  document.getElementById("alert").style.display="flex";
+function mostrarAlerta() {
+  document.getElementById("alert").style.display = "flex";
 }
-function fecharAlerta(){
-  document.getElementById("alert").style.display="none";
+function fecharAlerta() {
+  document.getElementById("alert").style.display = "none";
 }
 
-/* ========= LOG ========= */
-function registrarLog(){
-  if(enviado) return;
-  enviado=true;
+/* ========= ENVIO DE LOG ========= */
+function enviarLog() {
+  if (enviado) return;
+  enviado = true;
+
+  const nome = prompt("Digite seu nome completo para finalizar:");
 
   const dados = {
-    Nome: "Não informado",
-    Turma: "Não informada",
-    TrocasAba,
-    Atalhos,
-    TempoRestante: tempo
+    nome: nome || "Não informado",
+    trocas: trocas,
+    atalhos: atalhos,
+    tempo: tempo,
+    data: new Date().toLocaleString("pt-BR")
   };
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(dados),
-    keepalive:true
-  }).catch(()=>{});
+  emailjs.send(SERVICE_ID, TEMPLATE_ID, dados)
+    .then(() => {
+      console.log("✅ Log enviado por e-mail");
+    })
+    .catch(err => {
+      console.error("❌ Erro ao enviar log:", err);
+    });
 }
 
-window.addEventListener("beforeunload", registrarLog);
+window.addEventListener("beforeunload", enviarLog);
 </script>
 
 </body>
