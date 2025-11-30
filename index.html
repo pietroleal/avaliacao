@@ -1,43 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avaliação 2 – Prof. Leal</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avaliação Monitorada – Prof. Leal</title>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
+* { box-sizing: border-box; }
+
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
+  font-family: Arial, sans-serif;
   background: #f5f5f5;
 }
 
-/* ===== CABEÇALHO ===== */
 header {
-  background: #ddd;
+  background: #e0e0e0;
   padding: 12px;
   text-align: center;
 }
 
 header h2 {
-  margin: 4px 0;
+  margin: 6px 0;
   font-size: 1.2rem;
 }
 
 #timer {
-  font-size: 1.2rem;
-  color: darkred;
   font-weight: bold;
+  color: darkred;
+  font-size: 1.1rem;
 }
 
-/* ===== GOOGLE FORM ===== */
 iframe {
   width: 100%;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 150px);
   border: none;
 }
 
-/* ===== ALERTA ===== */
 .alert-overlay {
   position: fixed;
   inset: 0;
@@ -52,29 +54,27 @@ iframe {
   background: #fff;
   padding: 22px;
   border-radius: 8px;
-  max-width: 360px;
+  max-width: 90%;
   text-align: center;
 }
 
 .alert-box h3 {
   color: #d32f2f;
+  margin-bottom: 10px;
 }
 
 .alert-box button {
-  margin-top: 12px;
   background: #d32f2f;
   color: #fff;
-  border: none;
+  border: 0;
   padding: 10px 18px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-/* ===== RESPONSIVO ===== */
 @media (max-width: 768px) {
-  iframe {
-    height: calc(100vh - 150px);
-  }
+  header h2 { font-size: 1rem; }
+  iframe { height: calc(100vh - 180px); }
 }
 </style>
 </head>
@@ -83,16 +83,12 @@ iframe {
 
 <header>
   <h2>Avaliação 2 – Individual – Prof. Leal</h2>
-  ⚠️ Avaliação monitorada  
+  ⚠️ Avaliação monitorada
   <div>Tempo restante: <span id="timer">01:20:00</span></div>
 </header>
 
-<!-- GOOGLE FORM -->
-<iframe
-  src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true">
-</iframe>
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe_NR3Ge7AQw-WfBTYuthT1TP12Ez1u_xVGDPGaJaFgvJ7BAw/viewform?embedded=true"></iframe>
 
-<!-- ALERTA -->
 <div class="alert-overlay" id="alert">
   <div class="alert-box">
     <h3>⚠️ Atenção</h3>
@@ -104,78 +100,49 @@ iframe {
   </div>
 </div>
 
-<!-- FORMULÁRIO DE LOG – FORMSPREE -->
-<form id="formLog"
-      action="https://formspree.io/f/mzzndeow"
-      method="POST"
-      style="display:none;">
-  <input type="hidden" name="avaliacao" value="Avaliação 2 – Prof. Leal">
-  <input type="hidden" name="trocas_aba" id="logTrocas">
-  <input type="hidden" name="atalhos" id="logAtalhos">
-  <input type="hidden" name="tempo_restante" id="logTempo">
-  <input type="hidden" name="data_hora" id="logData">
-</form>
-
 <script>
-/* =========================
-   VARIÁVEIS DE CONTROLE
-========================= */
-let tempo = 80 * 60;
-let trocasAba = 0;
-let atalhos = 0;
-let logEnviado = false;
-let alertaVisivel = false;
+/* ========= EMAILJS CONFIG ========= */
+emailjs.init("4HiIxy4oy-dWqxWEo");
 
-/* =========================
-   TIMER
-========================= */
+const SERVICE_ID = "service_6irvdev";
+const TEMPLATE_ID = "yqb8ejw";
+
+/* ========= VARIÁVEIS ========= */
+let tempo = 80 * 60;
+let trocas = 0;
+let atalhos = 0;
+let enviado = false;
+
+/* ========= TIMER ========= */
 function atualizarTimer() {
-  const h = String(Math.floor(tempo / 3600)).padStart(2, '0');
-  const m = String(Math.floor((tempo % 3600) / 60)).padStart(2, '0');
-  const s = String(tempo % 60).padStart(2, '0');
+  let h = String(Math.floor(tempo / 3600)).padStart(2,'0');
+  let m = String(Math.floor((tempo % 3600) / 60)).padStart(2,'0');
+  let s = String(tempo % 60).padStart(2,'0');
+
   document.getElementById("timer").textContent = `${h}:${m}:${s}`;
 
   if (tempo <= 0) {
     enviarLog();
-    document.body.innerHTML =
-      "<h2 style='text-align:center;margin-top:40px'>Tempo esgotado.</h2>";
+    document.body.innerHTML = "<h2 style='text-align:center'>Tempo esgotado.</h2>";
   }
   tempo--;
 }
 setInterval(atualizarTimer, 1000);
 atualizarTimer();
 
-/* =========================
-   ALERTA
-========================= */
-function mostrarAlerta() {
-  if (alertaVisivel) return;
-  alertaVisivel = true;
-  document.getElementById("alert").style.display = "flex";
-}
-
-function fecharAlerta() {
-  alertaVisivel = false;
-  document.getElementById("alert").style.display = "none";
-}
-
-/* =========================
-   DETECÇÃO REAL (SEM LOOP)
-========================= */
-
-// mouse saiu pelo topo (tentativa de trocar aba/janela)
-document.addEventListener("mouseleave", e => {
-  if (e.clientY <= 0) {
-    trocasAba++;
+/* ========= MONITORAMENTO ========= */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    trocas++;
     mostrarAlerta();
   }
 });
 
-// atalhos de cópia / print
 document.addEventListener("keydown", e => {
   if (
     e.key === "PrintScreen" ||
-    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase()))
+    (e.ctrlKey && ["c","v","x","u","s","p"].includes(e.key.toLowerCase())) ||
+    e.altKey
   ) {
     atalhos++;
     e.preventDefault();
@@ -183,23 +150,38 @@ document.addEventListener("keydown", e => {
   }
 });
 
-/* =========================
-   ENVIO DO LOG – FORMSPREE
-========================= */
-function enviarLog() {
-  if (logEnviado) return;
-  logEnviado = true;
-
-  document.getElementById("logTrocas").value = trocasAba;
-  document.getElementById("logAtalhos").value = atalhos;
-  document.getElementById("logTempo").value = tempo;
-  document.getElementById("logData").value =
-    new Date().toLocaleString("pt-BR");
-
-  document.getElementById("formLog").submit();
+/* ========= ALERTA ========= */
+function mostrarAlerta() {
+  document.getElementById("alert").style.display = "flex";
+}
+function fecharAlerta() {
+  document.getElementById("alert").style.display = "none";
 }
 
-// garante envio ao fechar a página
+/* ========= ENVIO DE LOG ========= */
+function enviarLog() {
+  if (enviado) return;
+  enviado = true;
+
+  const nome = prompt("Digite seu nome completo para finalizar:");
+
+  const dados = {
+    nome: nome || "Não informado",
+    trocas: trocas,
+    atalhos: atalhos,
+    tempo: tempo,
+    data: new Date().toLocaleString("pt-BR")
+  };
+
+  emailjs.send(SERVICE_ID, TEMPLATE_ID, dados)
+    .then(() => {
+      console.log("✅ Log enviado por e-mail");
+    })
+    .catch(err => {
+      console.error("❌ Erro ao enviar log:", err);
+    });
+}
+
 window.addEventListener("beforeunload", enviarLog);
 </script>
 
